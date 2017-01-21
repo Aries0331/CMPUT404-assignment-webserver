@@ -1,14 +1,15 @@
-#  coding: utf-8 
+#  coding: utf-8
 import SocketServer
+import os
 
-# Copyright 2013 Abram Hindle, Eddie Antonio Santos
-# 
+# Copyright 2013 Abram Hindle, Eddie Antonio Santos, Jinzhu Li
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,11 +29,20 @@ import SocketServer
 
 
 class MyWebServer(SocketServer.BaseRequestHandler):
-    
+
     def handle(self):
         self.data = self.request.recv(1024).strip()
         print ("Got a request of: %s\n" % self.data)
         self.request.sendall("OK")
+
+        # split the requset
+        method = self.data.split()[0]
+        asb_path = self.data.split()[1]
+        ifMethod(method)
+
+    def ifMethod(method):
+        if(method != 'GET'):
+            status = "HTTP/1.1 405 Method Not Allowed"
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
