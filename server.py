@@ -37,12 +37,39 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 
         # split the requset
         method = self.data.split()[0]
-        asb_path = self.data.split()[1]
-        ifMethod(method)
+        abs_path = self.data.split()[1]
 
-    def ifMethod(method):
+        response = self.ifMethod(method)
+
+    def ifMethod(self, method):
         if(method != 'GET'):
-            status = "HTTP/1.1 405 Method Not Allowed"
+            status = "HTTP/1.1 405 Method Not Allowed\r\n"
+            response = "content-type: text/html\r\n" + \
+                        "content-length: +  \r\n" + \
+                        "contents"
+            return response
+        else:
+            pass
+
+    def getPath(self, path):
+        dir = os.path.abspath("www")
+
+        # if this is a GET method
+        if not response:
+            #print "aaaa"
+            if not abs_path.startswith(dir):
+                print ("not this dir")
+                # handle 404 Error
+            elif:
+            elif "/../" in abs_path:
+                # handle 404 Error
+            else:
+                # handle 404 Error
+            if not os.path.exists(dir):
+                # handle 404 Error
+        print (dir)
+
+
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
