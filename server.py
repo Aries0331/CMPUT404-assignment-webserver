@@ -32,7 +32,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        print ("Got a request of: %s\n" % self.data)
+        #print ("Got a request of: %s\n" % self.data)
         #self.request.sendall("OK")
 
         # split the requset
@@ -65,6 +65,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
     def getPath(self, path):
         # ./www working directory
         dir = os.path.abspath("www")
+        #print (path)
         full_path = os.path.abspath('www'+path)
 
         types = path.split(".")
@@ -87,8 +88,9 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             #print ("not exists uri")
             self.error_404()
         #print (dir)
-        elif path == '/':
-            full_path = full_path + "/index.html"
+        # return index.html from directories
+        elif os.path.isdir(full_path):
+            full_path = full_path + '/index.html'
 
         # try open the file
         try:
