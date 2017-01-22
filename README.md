@@ -26,4 +26,4 @@ compatible) http://docs.python.org/2/library/socketserver.html
 Other references:   
 https://docs.python.org/2/library/os.path.html#module-os.path   
 https://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html   
-https://en.wikipedia.org/wiki/HTTP_301   
+https://en.wikipedia.org/wiki/HTTP_302   
