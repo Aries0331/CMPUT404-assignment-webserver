@@ -39,6 +39,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         method = self.data.split()[0]
         abs_path = self.data.split()[1]
         #print "aaaaaaaaaa"
+        #print abs_path
         #print os.path.abspath('www'+abs_path)
 
         response = self.ifMethod(method)
@@ -63,7 +64,6 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             pass
 
     def getPath(self, path):
-        # ./www working directory
         dir = os.path.abspath("www")
         #print (path)
         full_path = os.path.abspath('www'+path)
@@ -89,8 +89,14 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             self.error_404()
         #print (dir)
         # return index.html from directories
+        # TODO: handle 302 error
         elif os.path.isdir(full_path):
-            full_path = full_path + '/index.html'
+            # paths that end in /
+            if path[-1] == '/':
+                full_path = full_path + "/index.html"
+            # if path not ending with '/', redirect it
+            else:
+                self.handle_302(full_path)
 
         # try open the file
         try:
@@ -120,6 +126,18 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                     "</body></html>"
         self.respond(status, mime_type, contents)
 
+    def handle_302(self,path):
+        status = "302 Found"
+        mime_type = "html"
+        contents = "<HTML><HEAD>\r\n" + \
+                    "<TITLE>302 Moved</TITLE></HEAD><BODY>\r\n" + \
+                    "<H1>302 Moved</H1>\r\n" + \
+                    "The document has moved\r\n" + \
+                    "<A HREF=" + path + "/index.html>here</A>.\r\n" + \
+                    "</BODY></HTML>"
+        location = "Location: " + path + "/index.html"
+        self.respond(status, mime_type, contents)
+        self.request.sendall(location)
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
