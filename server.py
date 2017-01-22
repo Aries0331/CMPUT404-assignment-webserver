@@ -38,10 +38,14 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         # split the requset
         method = self.data.split()[0]
         abs_path = self.data.split()[1]
-
-        mime_type = abs_path.split(".")[1]
+        #print "aaaaaaaaaa"
+        #print os.path.abspath('www'+abs_path)
 
         response = self.ifMethod(method)
+
+        # if this is a GET method
+        if not response:
+            self.getPath(abs_path)
 
     def ifMethod(self, method):
         if(method != 'GET'):
@@ -59,26 +63,40 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             pass
 
     def getPath(self, path):
+        # ./www working directory
         dir = os.path.abspath("www")
+        full_path = os.path.abspath('www'+path)
 
-        # if this is a GET method
-        if not response:
-            #print "aaaa"
-            if not abs_path.startswith(dir):
-                print ("not this dir")
-                # handle 404 Error
-                self.error_404()
-            #elif abs_path = '/' :
-            elif "/../" in abs_path:
-                # handle 404 Error
-                self.error_404()
-            elif not os.path.exists(dir):
-                # handle 404 Error
-                self.error_404()
+        types = path.split(".")
+        if types[-1] == 'css':
+            mime_type = "css"
+        elif types[-1] == 'html':
+            mime_type = "html"
+        else:
+            mime_type = "html"
+
+        if not full_path.startswith(dir): # ONLY files in ./www and deeper to be served
+            #print ("not this dir")
+            # handle 404 Error
+            self.error_404()
+        elif "/../" in full_path:
+            # handle 404 Error
+            self.error_404()
+        elif not os.path.exists(full_path):
+            # handle 404 Error
+            #print ("not exists uri")
+            self.error_404()
         #print (dir)
-            # if everything is fine, open the file
-            file = open("www"+abs_path, "r")
+        elif path == '/':
+            full_path = full_path + "/index.html"
+
+        # try open the file
+        try:
+            file = open(full_path, "r")
             contents = file.read()
+        except IOError, e:
+            self.error_404()
+        else:
             status = "200 OK"
             self.respond(status, mime_type, contents)
 
@@ -87,12 +105,12 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                     "Content-type: text/" + mime_type + "\r\n" + \
                     "Content-length: " + str(len(contents)) + "\r\n\r\n" + \
                     contents + "\r\n"
-        print response
+        #print response
         self.request.sendall(response)
 
     def error_404(self):
         status = "404 Not Found"
-        mime_type = "text/html"
+        mime_type = "html"
         contents = "<html><head>\r\n" + \
                     "<title>404 Not Found</title>\r\n" + \
                     "</head><body>\r\n" + \
