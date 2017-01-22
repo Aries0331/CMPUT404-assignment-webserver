@@ -33,20 +33,27 @@ class MyWebServer(SocketServer.BaseRequestHandler):
     def handle(self):
         self.data = self.request.recv(1024).strip()
         print ("Got a request of: %s\n" % self.data)
-        self.request.sendall("OK")
+        #self.request.sendall("OK")
 
         # split the requset
         method = self.data.split()[0]
         abs_path = self.data.split()[1]
 
+        mime_type = abs_path.split(".")[1]
+
         response = self.ifMethod(method)
 
     def ifMethod(self, method):
         if(method != 'GET'):
-            status = "HTTP/1.1 405 Method Not Allowed\r\n"
-            response = "content-type: text/html\r\n" + \
-                        "content-length: +  \r\n" + \
-                        "contents"
+            status = "405 Method Not Allowed"
+            mime_type = "text/html"
+            contents = "<html><head>\r\n" + \
+                        "<title>405 Method Not Allowed</title>\r\n" + \
+                        "</head><body>\r\n" + \
+                        "<h1>405 Method Not Allowed</h1>\r\n" + \
+                        "</body></html>"
+            response = False
+            self.respond(status, mime_type, contents)
             return response
         else:
             pass
@@ -60,15 +67,38 @@ class MyWebServer(SocketServer.BaseRequestHandler):
             if not abs_path.startswith(dir):
                 print ("not this dir")
                 # handle 404 Error
-            elif:
+                self.error_404()
+            #elif abs_path = '/' :
             elif "/../" in abs_path:
                 # handle 404 Error
-            else:
+                self.error_404()
+            elif not os.path.exists(dir):
                 # handle 404 Error
-            if not os.path.exists(dir):
-                # handle 404 Error
-        print (dir)
+                self.error_404()
+        #print (dir)
+            # if everything is fine, open the file
+            file = open("www"+abs_path, "r")
+            contents = file.read()
+            status = "200 OK"
+            self.respond(status, mime_type, contents)
 
+    def respond(self, status, mime_type, contents):
+        response = "HTTP/1.1 " + status + "\r\n" + \
+                    "Content-type: text/" + mime_type + "\r\n" + \
+                    "Content-length: " + str(len(contents)) + "\r\n\r\n" + \
+                    contents + "\r\n"
+        print response
+        self.request.sendall(response)
+
+    def error_404(self):
+        status = "404 Not Found"
+        mime_type = "text/html"
+        contents = "<html><head>\r\n" + \
+                    "<title>404 Not Found</title>\r\n" + \
+                    "</head><body>\r\n" + \
+                    "<h1>Nothing matches the given URI</h1>\r\n" + \
+                    "</body></html>"
+        self.respond(status, mime_type, contents)
 
 
 if __name__ == "__main__":
