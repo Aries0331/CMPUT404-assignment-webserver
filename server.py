@@ -35,18 +35,20 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         #print ("Got a request of: %s\n" % self.data)
         #self.request.sendall("OK")
 
-        # split the requset
-        method = self.data.split()[0]
-        abs_path = self.data.split()[1]
-        #print "aaaaaaaaaa"
-        #print abs_path
-        #print os.path.abspath('www'+abs_path)
+        # in case we get some empty data
+        if self.data:
+		    # split the requset
+		    method = self.data.split()[0]
+		    abs_path = self.data.split()[1]
+		    #print "aaaaaaaaaa"
+		    #print abs_path
+		    #print os.path.abspath('www'+abs_path)
 
-        response = self.ifMethod(method)
+		    response = self.ifMethod(method)
 
-        # if this is a GET method
-        if not response:
-            self.getPath(abs_path)
+		    # if this is a GET method
+		    if not response:
+		        self.getPath(abs_path)
 
     def ifMethod(self, method):
         if(method != 'GET'):
